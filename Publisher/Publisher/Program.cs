@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using MassTransit;
+using Messages;
 
 namespace Publisher
 {
@@ -10,6 +8,20 @@ namespace Publisher
     {
         static void Main(string[] args)
         {
+            var bus = Bus.Factory.CreateUsingRabbitMq(configurator =>
+            {
+                configurator.Host(new Uri("rabbitmq://192.168.56.101"), hostConfigurator =>
+                {
+                    hostConfigurator.Username("test");
+                    hostConfigurator.Password("test");
+
+                    hostConfigurator.PublisherConfirmation = true;
+                });
+            });
+
+            bus.Start();
+            bus.Publish<IHelloWorldMessage>(new { Message = "Hello, World!" });
+            bus.Stop();
         }
     }
 }
