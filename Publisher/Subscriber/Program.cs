@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Autofac;
 using MassTransit;
 using Messages;
 using Console = System.Console;
@@ -10,7 +11,25 @@ namespace Subscriber
     {
         static void Main(string[] args)
         {
-            var bus = Bus.Factory.CreateUsingRabbitMq(configurator =>
+            using (var scope = BuildContainer().BeginLifetimeScope())
+            {
+                var bus = scope.Resolve<IBusControl>();
+
+                bus.Start();
+
+                Console.ReadLine();
+
+                bus.Stop();
+            }
+        }
+
+        static IContainer BuildContainer()
+        {
+            var builder = new ContainerBuilder();
+            builder.RegisterType<HelloWorldConsumer>().AsImplementedInterfaces();
+            builder.Register(c =>
+            {
+                var bus = Bus.Factory.CreateUsingRabbitMq(configurator =>
                 {
                     configurator.Host(new Uri("rabbitmq://192.168.56.101"), hostConfigurator =>
                     {
@@ -18,20 +37,24 @@ namespace Subscriber
                         hostConfigurator.Password("test");
                     });
 
-                    configurator.ReceiveEndpoint("hello_world", endpointConfigurator =>
-                    {
-                        endpointConfigurator.Consumer<HelloWorldConsumer>();
-                    });
+                    configurator.ReceiveEndpoint("hello_world",
+                        endpointConfigurator =>
+                        {
+                            // Load consumers from the container
+                            endpointConfigurator.LoadFrom(c);
+                        });
                 });
 
-            bus.Start();
+                return bus;
+            })
+                .As<IBus>()
+                .As<IBusControl>()
+                .SingleInstance();
 
-            Console.ReadLine();
-
-            bus.Stop();
+            return builder.Build();
         }
     }
-
+    
     public class HelloWorldConsumer :IConsumer<IHelloWorldMessage>
     {
         public Task Consume(ConsumeContext<IHelloWorldMessage> context)
