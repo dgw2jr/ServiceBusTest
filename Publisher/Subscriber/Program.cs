@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using Autofac;
 using MassTransit;
 using Messages;
+using Serilog;
 using Console = System.Console;
 
 namespace Subscriber
@@ -11,6 +12,8 @@ namespace Subscriber
     {
         static void Main(string[] args)
         {
+            Log.Logger = new LoggerConfiguration().WriteTo.Console().CreateLogger();
+
             using (var scope = BuildContainer().BeginLifetimeScope())
             {
                 var bus = scope.Resolve<IBusControl>();
@@ -31,6 +34,8 @@ namespace Subscriber
             {
                 var bus = Bus.Factory.CreateUsingRabbitMq(configurator =>
                 {
+                    configurator.UseSerilog();
+
                     configurator.Host(new Uri("rabbitmq://192.168.56.101"), hostConfigurator =>
                     {
                         hostConfigurator.Username("test");
