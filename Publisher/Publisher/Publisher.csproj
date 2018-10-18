@@ -90,6 +90,10 @@
       <Project>{49A8F906-700B-41E9-A9B1-BFA1E6DFC918}</Project>
       <Name>Messages</Name>
     </ProjectReference>
+    <ProjectReference Include="..\ServiceBus\ServiceBus.csproj">
+      <Project>{61E89E5A-9B3B-48B4-A85A-15708AD6BE5C}</Project>
+      <Name>ServiceBus</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
