@@ -1,7 +1,6 @@
 ﻿using System;
 using MassTransit;
 using Messages;
-using ServiceBus;
 
 namespace Publisher
 {
@@ -19,11 +18,9 @@ namespace Publisher
                     hostConfigurator.PublisherConfirmation = true;
                 });
             });
-
-            var busWrapper = new ServiceBusWrapper(bus);
-
+            
             bus.Start();
-            busWrapper.Publish<IHelloWorldMessage>(new { Message = "Hello, World!" });
+            bus.Publish<IHelloWorldMessage>(new { Message = "Hello, World!" });
             bus.Stop();
         }
     }

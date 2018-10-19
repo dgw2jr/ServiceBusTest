@@ -1,0 +1,12 @@
+﻿@using System.Web.Mvc.Html
+@inherits System.Web.Mvc.WebViewPage<WebPublisher.Features.SendMessage.SendMessageViewModel>
+
+<div class="jumbotron">
+    @using (Html.BeginForm("SendMessage", "SendMessage"))
+    {
+        @Html.LabelFor(m => m.Message, "Message to send:")
+        @Html.TextBoxFor(m => m.Message)
+
+        <input type="submit" value="Send"/>
+    }
+</div>
